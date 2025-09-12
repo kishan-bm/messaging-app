@@ -5,21 +5,36 @@ const bcrypt = require('bcrypt');
 
 // Route to register a new user with password hashing
 router.post('/register', async (req, res) => {
-  const { username, password } = req.body;
+  const { username, phoneNumber, password } = req.body;
+  const client = await db.pool.connect();
   try {
+    await client.query('BEGIN');
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    const result = await db.query(
+
+    const userResult = await client.query(
       'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id, username',
       [username, hashedPassword]
     );
+    const userId = userResult.rows[0].id;
+
+    await client.query(
+      'INSERT INTO user_details (user_id, phone_number) VALUES ($1, $2)',
+      [userId, phoneNumber]
+    );
+
+    await client.query('COMMIT');
     res.status(201).json({
       message: 'User registered successfully',
-      user: result.rows[0],
+      user: { id: userId, username, phone_number: phoneNumber },
     });
   } catch (err) {
-    console.error('Error registering user:', err.message);
-    res.status(500).json({ error: 'Username already exists or a database error occurred.' });
+    await client.query('ROLLBACK');
+    console.error('Error during registration:', err.message);
+    res.status(500).json({ error: 'Registration failed. The phone number or username may already exist.' });
+  } finally {
+    client.release();
   }
 });
 
@@ -27,9 +42,13 @@ router.post('/login', async (req, res) => {
   const { identifier, password } = req.body;
   try {
     const result = await db.query(
-      `SELECT u.*, ud.phone_number FROM users u
+      `SELECT u.id, u.username, u.password, ud.phone_number FROM users u
        LEFT JOIN user_details ud ON u.id = ud.user_id
-       WHERE u.username = $1 OR ud.phone_number = $1`,
+       WHERE u.username = $1
+       UNION
+       SELECT u.id, u.username, u.password, ud.phone_number FROM users u
+       JOIN user_details ud ON u.id = ud.user_id
+       WHERE ud.phone_number = $1`,
       [identifier]
     );
 

@@ -34,16 +34,15 @@ const RegisterPage = () => {
   };
 
   const handleStep3 = async (e) => {
-    e.preventDefault();
-    setError('');
-    const success = await register(username || phoneNumber, password);
-    if (success) {
-      // Explicitly navigate to the login page on success
-      navigate('/login');
-    } else {
-      setError('Registration failed. Username may already exist.');
-    }
-  };
+  e.preventDefault();
+  setError('');
+  const success = await register(username || phoneNumber, phoneNumber, password);
+  if (success) {
+    navigate('/login');
+  } else {
+    setError('Registration failed. Username may already exist.');
+  }
+}; 
 
   const renderStep = () => {
     if (step === 1) {

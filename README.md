@@ -109,6 +109,7 @@ Step 2: Enter the mock OTP 1234 to verify your number.
 Step 3: Provide an optional username. This will be the name displayed to others.
 
 - Login: After registering, you will be redirected to the login page. You can log in using either the username or the phone number you registered with, along with your password.
+# note if the login failed with phone number then try with username
 
 - Find and Chat: Once logged in, the main chat interface appears.
 

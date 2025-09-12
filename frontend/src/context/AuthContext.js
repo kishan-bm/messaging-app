@@ -28,19 +28,19 @@ export const AuthProvider = ({ children }) => {
   }
 };
 
-  const register = async (username, password) => {
-    try {
-      const response = await axios.post('http://localhost:5000/api/users/register', { username, password });
-      const userData = response.data.user;
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
-      return true;
-    } catch (error) {
-      console.error('Registration failed:', error);
-      setUser(null);
-      return false;
-    }
-  };
+  const register = async (username, phoneNumber, password) => {
+  try {
+    const response = await axios.post('http://localhost:5000/api/users/register', { username, phoneNumber, password });
+    const userData = response.data.user;
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+    return true;
+  } catch (error) {
+    console.error('Registration failed:', error);
+    setUser(null);
+    return false;
+  }
+};
 
   const logout = () => {
     setUser(null);
