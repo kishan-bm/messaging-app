@@ -6,6 +6,7 @@ import searchIcon from '../assets/search.png';
 import videoIcon from '../assets/video-camera.png';
 import telephoneIcon from '../assets/telephone.png';
 import ChatProfilePopup from './ChatProfilePopup';
+import MessageContextMenu from './MessageContextMenu'; // Import the new component
 import { AuthContext } from '../context/AuthContext';
 
 const ChatWindow = ({ contact, onMessageSent }) => {
@@ -14,6 +15,7 @@ const ChatWindow = ({ contact, onMessageSent }) => {
   const [newMessage, setNewMessage] = useState('');
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
+  const [contextMenu, setContextMenu] = useState({ visible: false, message: null, position: { x: 0, y: 0 } });
 
   useEffect(() => {
     const fetchMessagesAndStatus = async () => {
@@ -52,6 +54,16 @@ const ChatWindow = ({ contact, onMessageSent }) => {
     }
   };
 
+  const handleRightClick = (e, message) => {
+    e.preventDefault();
+    setContextMenu({ visible: true, message, position: { x: e.clientX, y: e.clientY } });
+  };
+
+  const onRemoveMessage = (messageId) => {
+    setMessages(messages.filter(msg => msg.id !== messageId));
+    setContextMenu({ visible: false, message: null, position: { x: 0, y: 0 } });
+  };
+
   return (
     <div className="chat-window-container">
       <div className="chat-header">
@@ -65,9 +77,13 @@ const ChatWindow = ({ contact, onMessageSent }) => {
           <img src={searchIcon} alt="Search" className="icon-btn" />
         </div>
       </div>
-      <div className="chat-messages">
-        {messages.map((msg, index) => (
-          <div key={index} className={`message-bubble ${msg.sender_id === user.id ? 'sent' : 'received'}`}>
+      <div className="chat-messages" onClick={() => setContextMenu({ visible: false, message: null, position: { x: 0, y: 0 } })}>
+        {messages.map((msg) => (
+          <div 
+            key={msg.id} 
+            className={`message-bubble ${msg.sender_id === user.id ? 'sent' : 'received'}`}
+            onContextMenu={(e) => msg.sender_id === user.id && handleRightClick(e, msg)}
+          >
             <div className="message-content">
               {msg.content}
             </div>
@@ -77,6 +93,13 @@ const ChatWindow = ({ contact, onMessageSent }) => {
           <div className="blocked-message-note">
             <p>You cannot send or receive messages from this user. To receive messages, you need to unblock this user.</p>
           </div>
+        )}
+        {contextMenu.visible && (
+          <MessageContextMenu
+            message={contextMenu.message}
+            onRemoveMessage={onRemoveMessage}
+            position={contextMenu.position}
+          />
         )}
       </div>
       <form onSubmit={handleSendMessage} className="chat-input-form">
@@ -92,10 +115,12 @@ const ChatWindow = ({ contact, onMessageSent }) => {
           <img src={sendIcon} alt="Send" />
         </button>
       </form>
+
       {showProfilePopup && (
         <ChatProfilePopup
           contact={contact}
           onClose={() => setShowProfilePopup(false)}
+          onChatDelete={() => { /* This function needs to be passed down from MainLayout */ }}
         />
       )}
     </div>

@@ -94,4 +94,33 @@ router.get('/search', async (req, res) => {
   }
 });
 
+// Route to delete all messages between two users
+router.delete('/:userId/:contactId', async (req, res) => {
+  const { userId, contactId } = req.params;
+  try {
+    await db.query(
+      `DELETE FROM messages WHERE 
+       (sender_id = $1 AND receiver_id = $2) OR 
+       (sender_id = $2 AND receiver_id = $1)`,
+      [userId, contactId]
+    );
+    res.status(200).json({ message: 'Chat history deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting chat history:', err.message);
+    res.status(500).json({ error: 'A database error occurred.' });
+  }
+});
+
+// Route to delete a single message by its ID
+router.delete('/:messageId', async (req, res) => {
+  const { messageId } = req.params;
+  try {
+    await db.query('DELETE FROM messages WHERE id = $1', [messageId]);
+    res.status(200).json({ message: 'Message deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting message:', err.message);
+    res.status(500).json({ error: 'A database error occurred.' });
+  }
+});
+
 module.exports = router;

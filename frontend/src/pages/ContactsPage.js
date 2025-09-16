@@ -47,10 +47,10 @@ const ContactsPage = ({ onContactSelect }) => {
       setContacts(response.data);
       setSearchQuery('');
       setSearchResults([]);
-      alert('Contact added!');
+      // alert('Contact added!');
     } catch (error) {
       console.error('Error adding contact:', error);
-      alert('Failed to add contact.');
+      // alert('Failed to add contact.');
     }
   };
 

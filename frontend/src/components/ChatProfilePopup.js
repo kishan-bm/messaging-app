@@ -1,19 +1,29 @@
-import React from 'react';
+import React, { useState, useContext } from 'react';
+import axios from 'axios';
 import userIcon from '../assets/user.png';
+import { AuthContext } from '../context/AuthContext';
 
-const ChatProfilePopup = ({ contact, onClose }) => {
-  const handleDelete = () => {
-    // Implement delete user logic here
+const ChatProfilePopup = ({ contact, onClose, onChatDelete }) => {
+  const { user } = useContext(AuthContext);
+
+  const handleDelete = async () => {
     if (window.confirm(`Are you sure you want to delete chat history with ${contact.username}?`)) {
-      alert('Chat history deleted.');
-      onClose();
+      try {
+        await axios.delete(`http://localhost:5000/api/messages/${user.id}/${contact.id}`);
+        // alert('Chat history deleted successfully.');
+        onChatDelete();
+        onClose();
+      } catch (error) {
+        console.error('Error deleting chat:', error);
+        // alert('Failed to delete chat history.');
+      }
     }
   };
 
   const handleBlock = () => {
     // Implement block user logic here
     if (window.confirm(`Are you sure you want to block ${contact.username}?`)) {
-      alert('User blocked.');
+      // alert('User blocked.');
       onClose();
     }
   };

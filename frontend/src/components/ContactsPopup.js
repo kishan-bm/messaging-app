@@ -47,7 +47,7 @@ const ContactsPopup = ({ onClose, onContactSelect }) => {
         username: newContactUsername,
         phoneNumber: newContactPhone,
       });
-      alert('Contact saved successfully!');
+      // alert('Contact saved successfully!');
       const response = await axios.get(`http://localhost:5000/api/users/search?q=`);
       setAllUsers(response.data);
       
@@ -57,7 +57,7 @@ const ContactsPopup = ({ onClose, onContactSelect }) => {
       setPhoneError('');
     } catch (error) {
       const errorMessage = error.response?.data?.error || 'Failed to save contact.';
-      alert(errorMessage);
+      // alert(errorMessage);
       console.error('Error saving contact:', error);
     }
   };

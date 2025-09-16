@@ -47,6 +47,11 @@ const MainLayout = () => {
     }
   };
 
+  const handleChatDelete = () => {
+  setSelectedContact(null);
+  setChatHistory(chatHistory.filter(c => c.id !== selectedContact.id));
+};
+
   return (
     <div className="app-container">
       <LeftSidebar user={user} />
@@ -60,11 +65,12 @@ const MainLayout = () => {
           <ChatWindow
             contact={selectedContact}
             onMessageSent={updateChatHistory}
+            onChatDelete={handleChatDelete}
           />
         ) : (
           <div className="default-message">
             <h3>Welcome to Relatim</h3>
-            <p>Click on a chat to start a conversation.</p>
+            <p>Start the conversation.</p>
           </div>
         )}
       </div>
@@ -74,6 +80,7 @@ const MainLayout = () => {
           onContactSelect={handleContactSelect}
         />
       )}
+      
     </div>
   );
 };
